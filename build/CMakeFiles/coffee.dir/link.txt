@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/coffee.dir/cof.c.o  -o coffee   -L/home/james/coffee_grinder_project/TivaWare_C_Series-2.2.0.295/driverlib/gcc/libdriver.a 

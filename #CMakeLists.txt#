@@ -1,0 +1,20 @@
+# specify minimum required
+cmake_minimum_required(VERSION 3.16.3)
+
+# specify project name
+project(coffee)
+
+# specify which file will be built (I think)
+add_executable(${PROJECT_NAME} cof.c)
+
+# you can add subdirectories
+add_subdirectory(adder)
+
+# tell it the include directories we want
+target_include_directories(${PROJECT_NAME} PUBLIC adder)
+
+# tell it where to find the library
+target_link_directories(${PROJECT_NAME} PRIVATE adder)
+
+# tell it to link the subdirectory
+target_link_libraries(${PROJECT_NAME} adder)
