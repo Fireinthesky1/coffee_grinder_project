@@ -39,24 +39,35 @@
 
  */
 
+//TODO: Figure out the load value
+// data collection timer
+void t0_init(void)
+{
+  
+}
+
 // .1 second timer
 void t1_init(void)
 {
+  
 }
 
 // .1 second timer
 void t2_init(void)
 {
+  
 }
 
 // 1 second timer
 void t3_init(void)
 {
+  
 }
 
 // 1 second timer
 void t4_init(void)
 {
+  
 }
 
 //NOTE::PB0 collects DOUT; PB1 provides PD_SCK
@@ -85,14 +96,31 @@ void gpio_init(void)
 
 ////////////////////////////////////////////////////////////
 
-// collects dout information
+// collects DOUT data
 void t0_isr(void)
 {
   
 }
 
 // called when dout goes low
+//NOTE: Time between when dout goes low and data transfer begins
 void t1_isr(void)
+{
+  // disable timer1 interrupts
+  // clear timer1 interrupts
+  // enable timer2 interrupts NOTE: Data transition timer
+}
+
+//NOTE: Timer between when clock pulse is recieved to data being stable
+void t2_isr(void)
+{
+  // disable timer2 interrupts
+  // clear timer2 interrupts
+  // enable timer3 interrupts NOTE: clock HI timer
+  // enable timer0 interrupts NOTE: Data collect timer
+}
+
+void t3_isr(void)
 {
   // disable timer1 interrupts
   // clear timer1 interrupts
@@ -100,14 +128,13 @@ void t1_isr(void)
   // enable timer2 interrupts
 }
 
-void t2_isr(void)
-{}
-
-void t3_isr(void)
-{}
-
 void t4_isr(void)
-{}
+{
+  // disable timer1 interrupts
+  // clear timer1 interrupts
+  // do stuff
+  // enable timer2 interrupts
+}
 
 //NOTE::TRIGGERED WHEN DOUT GOES LOW
 void portb_isr(void)
