@@ -11,4 +11,4 @@ add_executable(${PROJECT_NAME} cof.c)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/TivaWare_C_Series-2.2.0.295/)
 
 # tell cmake where to find the library (path to .a file)
-target_link_directories(${PROJECT_NAME} PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/TivaWare_C_Series-2.2.0.295/driverlib/gcc/libdriver.a)
+target_link_libraries(${PROJECT_NAME} PRIVATE  ${CMAKE_CURRENT_SOURCE_DIR}/TivaWare_C_Series-2.2.0.295/driverlib/gcc/libdriver.a)

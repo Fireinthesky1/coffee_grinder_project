@@ -79,6 +79,7 @@ coffee_EXTERNAL_OBJECTS =
 
 coffee: CMakeFiles/coffee.dir/cof.c.o
 coffee: CMakeFiles/coffee.dir/build.make
+coffee: ../TivaWare_C_Series-2.2.0.295/driverlib/gcc/libdriver.a
 coffee: CMakeFiles/coffee.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/james/coffee_grinder_project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable coffee"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/coffee.dir/link.txt --verbose=$(VERBOSE)

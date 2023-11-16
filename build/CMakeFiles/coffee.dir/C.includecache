@@ -14,6 +14,8 @@
 
 ../TivaWare_C_Series-2.2.0.295/driverlib/timer.h
 
+../TivaWare_C_Series-2.2.0.295/inc/hw_gpio.h
+
 ../TivaWare_C_Series-2.2.0.295/inc/hw_ints.h
 
 ../TivaWare_C_Series-2.2.0.295/inc/hw_memmap.h
@@ -24,6 +26,8 @@ stdint.h
 stdbool.h
 -
 inc/hw_ints.h
+-
+inc/hw_gpio.h
 -
 inc/hw_memmap.h
 -

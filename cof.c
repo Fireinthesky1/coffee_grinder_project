@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <inc/hw_ints.h>
+#include <inc/hw_gpio.h>
 #include <inc/hw_memmap.h>
 #include <driverlib/gpio.h>
 #include <driverlib/timer.h>
@@ -39,6 +40,8 @@
 
  */
 
+uint32_t current_weight = 0;
+
 //TODO: Figure out the load value
 // data collection timer
 void t0_init(void)
@@ -46,60 +49,40 @@ void t0_init(void)
   
 }
 
-// .1 second timer
+//NOTE: .1 second timer
 void t1_init(void)
 {
   
 }
 
-// .1 second timer
+//NOTE: .1 second timer
 void t2_init(void)
 {
   
 }
 
-// 1 second timer
+//NOTE: 1 second timer
 void t3_init(void)
 {
   
 }
 
-// 1 second timer
+//NOTE: 1 second timer
 void t4_init(void)
 {
   
 }
 
-//NOTE::PB0 collects DOUT; PB1 provides PD_SCK
-void gpio_init(void)
-{
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB));
-
-  // DOUT [input]
-  GPIOPinTypeGPIOInput(GPIO_PORTB_BASE, GPIO_PIN_0);
-
-  // PD_SCK [output]
-  GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_1);
-
-  GPIOPadConfigSet(GPIO_PORTB_BASE,
-                   GPIO_PIN_0, GPIO_PIN_1,
-                   GPIO_STRENGTH_2MA,
-                   GPIO_PIN_TYPE_STD);
-
-  //NOTE::DOUT TRIGGERS THE INTERRUPT
-  GPIOIntEnable(GPIO_PORTB_BASE, GPIO_INT_PIN_0);
-
-  GPIOIntRegister(GPIO_PORTB_BASE, portb_isr);
-}
-
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 // collects DOUT data
 void t0_isr(void)
 {
-  
+  // disable timer0 interrupts
+  // clear timer0 interrupts
+  // read DOUT
+  current_weight << 1;                                                          //TODO: check that this works
+  current_weight += GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0);                   //TODO: check that this works
 }
 
 // called when dout goes low
@@ -136,11 +119,60 @@ void t4_isr(void)
   // enable timer2 interrupts
 }
 
+//NOTE::5 minute timeout timer.
+void t5_isr(void)
+{
+  // disable timer5 interrupts
+  // clear timer5 interrupts
+  // stop the machine
+}
+
 //NOTE::TRIGGERED WHEN DOUT GOES LOW
 void portb_isr(void)
-{}
+{
+}
+
+//NOTE::PB0 collects DOUT; PB1 provides PD_SCK
+void gpio_init(void)
+{
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+
+  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB));
+
+  // DOUT [input]
+  GPIOPinTypeGPIOInput(GPIO_PORTB_BASE, GPIO_PIN_0);
+
+  // PD_SCK [output]
+  GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_1);
+
+  GPIOPadConfigSet(GPIO_PORTB_BASE,                                             //TODO: does this work for both pins?
+                   GPIO_PIN_0 | GPIO_PIN_1,
+                   GPIO_STRENGTH_2MA,
+                   GPIO_PIN_TYPE_STD);
+
+  //NOTE::DOUT TRIGGERS THE INTERRUPT
+  GPIOIntEnable(GPIO_PORTB_BASE, GPIO_INT_PIN_0);
+
+  GPIOIntRegister(GPIO_PORTB_BASE, portb_isr);
+}
+
+void tare(void)
+{
+}
+
+//NOTE::THIS FUNCTION STARTS THE MACHINE
+void machine_start(void)
+{
+}
+
+//NOTE::THIS FUNCTION STOPS THE MACHINE
+void machine_stop(void)
+{
+}
 
 int main(void)
 {
+  // TODO: FUNCTION THAT STARTS THE MACHINE
+  // TODO: FIGURE OUT TARE MATH
   return 0;
 }
