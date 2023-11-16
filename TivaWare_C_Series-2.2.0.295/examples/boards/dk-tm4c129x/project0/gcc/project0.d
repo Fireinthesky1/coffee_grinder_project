@@ -1,0 +1,6 @@
+gcc/project0.o: project0.c \
+ /usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h \
+ /usr/lib/gcc/arm-none-eabi/9.2.1/include/stdbool.h \
+ ../../../../inc/hw_types.h ../../../../inc/hw_memmap.h \
+ ../../../../driverlib/sysctl.h ../../../../driverlib/gpio.h \
+ ../../../../driverlib/rom.h ../../../../driverlib/rom_map.h
