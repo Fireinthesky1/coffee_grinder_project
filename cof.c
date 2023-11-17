@@ -6,7 +6,6 @@
 #include <driverlib/gpio.h>
 #include <driverlib/timer.h>
 #include <driverlib/sysctl.h>
-//#include <inc/tm4c123gh6pm.h>
 #include <driverlib/interrupt.h>
 
 //TODO: CONVERSATION TO END WHEN EXACTLY 25 PULSES HAVE BEEN SENT
@@ -73,7 +72,8 @@ void t2_isr(void)
     {
       num_pulses = 0;
       TimerIntDisable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
-      current_weight = current_value - initial_weight;                          //TODO: BULLET PROOF THIS
+      current_weight = current_value - initial_weight; //TODO: BULLET PROOF THIS
+      //TODO: REENABLE PORTB INTERRUPTS (THIS IS THE END OF A CONVERSATION)
       if(first_conv)
         {
           initial_weight = current_weight;
@@ -110,7 +110,8 @@ void t1_init(void)
 
   TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
 
-  TimerLoadSet(TIMER1_BASE, TIMER_A, 0x10); // 16 cycles .2 microseconds        // TODO: this is twice the minimum
+  //TODO: This is twice the minimum
+  TimerLoadSet(TIMER1_BASE, TIMER_A, 0x10); // 16 cycles .2 microsecond
 
   TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
@@ -131,7 +132,8 @@ void t2_init(void)
 
   TimerConfigure(TIMER2_BASE, TIMER_CFG_PERIODIC);
 
-  TimerLoadSet(TIMER2_BASE, TIMER_A, 0x50); // 80 cycles 1 microsecond          // TODO: this is the minimum time
+  //TODO: This is exactly the minimum time
+  TimerLoadSet(TIMER2_BASE, TIMER_A, 0x50); // 80 cycles 1 microsecond
 
   TimerIntEnable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
 
@@ -163,11 +165,12 @@ void gpio_init(void)
 
 int main(void)
 {
-  // SET SYSTEM CLOCK TO 80MHz //TODO: MAKE SURE THIS IS ACTUALLY 80MHz
+  // SET SYSTEM CLOCK TO 80MHz
   SysCtlClockSet(SYSCTL_SYSDIV_2_5 |
                  SYSCTL_USE_PLL |
                  SYSCTL_OSC_MAIN |
                  SYSCTL_XTAL_16MHZ);
+  uint32_t clk_rte = SysCtlClockGet(); //TODO: VERIFY THIS IS 80MHz
   // start the machine
   GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_2, machine_on);
 
