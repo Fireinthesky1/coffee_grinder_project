@@ -10,11 +10,9 @@
 #include <driverlib/interrupt.h>
 
 //TODO: CONVERSATION TO END WHEN EXACTLY 25 PULSES HAVE BEEN SENT
-
+//TODO: FIGURE OUT TARE MATH
 /*
-1) A GPIO input will tell us to
-      a) start the machine
-      b) tare
+1) At startup we run one conversation to tare and then we constantly
 2) We will constantly read the data off of the chip
 3) We will stop the machine when we read 15 grams
 */
@@ -29,12 +27,16 @@
   T2 <-  1 microsecond timer
  */
 
+uint32_t current_value  = 0;
 uint32_t current_weight = 0;
+uint32_t initial_weight = 0;
 uint32_t counter        = 0;
 uint32_t divisions      = 256;
 uint32_t set            = 50;
 uint32_t num_pulses     = 0;
 bool     machine_on     = true;
+bool     first_conv     = true;
+
 // PB0 dout
 // PB1 clock
 // PB2 machine_on
@@ -63,14 +65,19 @@ void t2_isr(void)
   // are we on a falling edge?
   if(GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1) == 0)
     {
-      current_weight << 1;
-      current_weight += GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0);
+      current_value << 1;
+      current_value += GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0);
       num_pulses++;
     }
   if(num_pulses == 25)
     {
       num_pulses = 0;
       TimerIntDisable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
+      current_weight = current_value - initial_weight;                          //TODO: BULLET PROOF THIS
+      if(first_conv)
+        {
+          initial_weight = current_weight;
+        }
     }
 }
 
@@ -154,11 +161,6 @@ void gpio_init(void)
   GPIOIntRegister(GPIO_PORTB_BASE, portb_isr);
 }
 
-void tare(void)
-{
-  
-}
-
 int main(void)
 {
   // SET SYSTEM CLOCK TO 80MHz //TODO: MAKE SURE THIS IS ACTUALLY 80MHz
@@ -168,8 +170,8 @@ int main(void)
                  SYSCTL_XTAL_16MHZ);
   // start the machine
   GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_2, machine_on);
-  // TODO: FIGURE OUT TARE MATH
-  tare();
+
+  GPIOIntEnable(GPIO_PORTF_BASE, GPIO_PIN_0);
   while(1)
     {
       if(current_weight >= 15) // TODO: NEEDS TO BE 15 GRAMS
