@@ -1,3 +1,0 @@
-/home/james/coffee_grinder_project/build/CMakeFiles/rebuild_cache.dir
-/home/james/coffee_grinder_project/build/CMakeFiles/edit_cache.dir
-/home/james/coffee_grinder_project/build/CMakeFiles/coffee.dir
