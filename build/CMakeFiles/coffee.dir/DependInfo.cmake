@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
   "/home/james/coffee_grinder_project/cof.c" "/home/james/coffee_grinder_project/build/CMakeFiles/coffee.dir/cof.c.o"
+  "/home/james/coffee_grinder_project/startup_gcc.c" "/home/james/coffee_grinder_project/build/CMakeFiles/coffee.dir/startup_gcc.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

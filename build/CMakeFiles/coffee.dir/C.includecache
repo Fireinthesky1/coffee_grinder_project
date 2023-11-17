@@ -6,37 +6,15 @@
 
 #IncludeRegexTransform: 
 
-../TivaWare_C_Series-2.2.0.295/driverlib/gpio.h
+../TivaWare_C_Series-2.2.0.295/inc/hw_nvic.h
 
-../TivaWare_C_Series-2.2.0.295/driverlib/interrupt.h
+../TivaWare_C_Series-2.2.0.295/inc/hw_types.h
 
-../TivaWare_C_Series-2.2.0.295/driverlib/sysctl.h
-
-../TivaWare_C_Series-2.2.0.295/driverlib/timer.h
-
-../TivaWare_C_Series-2.2.0.295/inc/hw_gpio.h
-
-../TivaWare_C_Series-2.2.0.295/inc/hw_ints.h
-
-../TivaWare_C_Series-2.2.0.295/inc/hw_memmap.h
-
-/home/james/coffee_grinder_project/cof.c
+/home/james/coffee_grinder_project/startup_gcc.c
 stdint.h
 -
-stdbool.h
--
-inc/hw_ints.h
--
-inc/hw_gpio.h
--
-inc/hw_memmap.h
--
-driverlib/gpio.h
--
-driverlib/timer.h
--
-driverlib/sysctl.h
--
-driverlib/interrupt.h
--
+inc/hw_nvic.h
+/home/james/coffee_grinder_project/inc/hw_nvic.h
+inc/hw_types.h
+/home/james/coffee_grinder_project/inc/hw_types.h
 

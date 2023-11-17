@@ -1,7 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/coffee.dir/cof.c.o"
-  "coffee"
-  "coffee.pdb"
+  "CMakeFiles/coffee.dir/startup_gcc.c.o"
+  "coffee.elf"
+  "coffee.elf.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

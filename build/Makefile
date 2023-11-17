@@ -150,6 +150,33 @@ cof.c.s:
 	$(MAKE) -f CMakeFiles/coffee.dir/build.make CMakeFiles/coffee.dir/cof.c.s
 .PHONY : cof.c.s
 
+startup_gcc.o: startup_gcc.c.o
+
+.PHONY : startup_gcc.o
+
+# target to build an object file
+startup_gcc.c.o:
+	$(MAKE) -f CMakeFiles/coffee.dir/build.make CMakeFiles/coffee.dir/startup_gcc.c.o
+.PHONY : startup_gcc.c.o
+
+startup_gcc.i: startup_gcc.c.i
+
+.PHONY : startup_gcc.i
+
+# target to preprocess a source file
+startup_gcc.c.i:
+	$(MAKE) -f CMakeFiles/coffee.dir/build.make CMakeFiles/coffee.dir/startup_gcc.c.i
+.PHONY : startup_gcc.c.i
+
+startup_gcc.s: startup_gcc.c.s
+
+.PHONY : startup_gcc.s
+
+# target to generate assembly for a file
+startup_gcc.c.s:
+	$(MAKE) -f CMakeFiles/coffee.dir/build.make CMakeFiles/coffee.dir/startup_gcc.c.s
+.PHONY : startup_gcc.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,6 +189,9 @@ help:
 	@echo "... cof.o"
 	@echo "... cof.i"
 	@echo "... cof.s"
+	@echo "... startup_gcc.o"
+	@echo "... startup_gcc.i"
+	@echo "... startup_gcc.s"
 .PHONY : help
 
 

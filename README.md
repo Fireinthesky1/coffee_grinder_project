@@ -22,3 +22,12 @@ Using the TM4C123GH6PM microcontroller with a 1 kg load cell send a signal to tu
         3) Figure out data collection rate.
         4) Bullet proof timer load values
         5) Verify that we're getting 80MHz clock
+## Tools to look into
+	1) OpenOCD
+	2) CMAKE (to use arm-none-eabi-gcc)
+	3) CMAKE (toolchain files)
+## OpenOCD
+	1) openocd -f board/ek-tm4c123gxl.cfg -c init -c "program firmware.bin; reset" -c shutdown
+## arm-none-eabi-gcc
+	1) arm-none-eabi-gcc -mlittle-endian -mcpu=cortex-m4 -march=armv7e-m -mthumb
+	2) (for enabling the fpu) -mfpu=fpv4-sp-d16 -mfloat-abi=hard
