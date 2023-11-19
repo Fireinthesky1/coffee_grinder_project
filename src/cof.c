@@ -8,6 +8,8 @@
 #include <driverlib/sysctl.h>
 #include <driverlib/interrupt.h>
 
+#define ADC_MAX 0xFFFFFF
+
 //TODO: CONVERSATION TO END WHEN EXACTLY 25 PULSES HAVE BEEN SENT
 //TODO: FIGURE OUT TARE MATH
 /*
@@ -64,7 +66,7 @@ void t2_isr(void)
   // are we on a falling edge?
   if(GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1) == 0)
     {
-      current_value << 1;
+      current_value = current_value << 1;
       current_value += GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0);
       num_pulses++;
     }
@@ -177,7 +179,7 @@ int main(void)
   GPIOIntEnable(GPIO_PORTF_BASE, GPIO_PIN_0);
   while(1)
     {
-      if(current_weight >= 15) // TODO: NEEDS TO BE 15 GRAMS
+      if((current_weight / ADC_MAX * 1000) >= 15) // TODO: BULLET PROOF THIS ADC TO GRAM CALCULATION
         {
           //TODO: could we just return an shut off the machine here?
           machine_on = false;

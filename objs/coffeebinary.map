@@ -12,7 +12,7 @@ Discarded input sections
  .data          0x0000000000000000        0x0 objs/src/cof.o
  .bss           0x0000000000000000        0x0 objs/src/cof.o
  .text.t1_isr   0x0000000000000000       0x30 objs/src/cof.o
- .text.t2_isr   0x0000000000000000       0x8c objs/src/cof.o
+ .text.t2_isr   0x0000000000000000       0x94 objs/src/cof.o
  .text.portb_isr
                 0x0000000000000000       0x30 objs/src/cof.o
  .text.t1_init  0x0000000000000000       0x5c objs/src/cof.o
@@ -427,63 +427,63 @@ Linker script and memory map
 LOAD objs/src/cof.o
 LOAD objs/sys/startup_gcc.o
 
-.text           0x0000000000000000      0x604
+.text           0x0000000000000000      0x61c
                 0x0000000000000000                _text = .
  *(.isr_vector)
  .isr_vector    0x0000000000000000      0x26c objs/sys/startup_gcc.o
                 0x0000000000000000                g_pfnVectors
  *(.text*)
- .text.main     0x000000000000026c       0x50 objs/src/cof.o
+ .text.main     0x000000000000026c       0x68 objs/src/cof.o
                 0x000000000000026c                main
- .text.NmiSR    0x00000000000002bc        0x2 objs/sys/startup_gcc.o
+ .text.NmiSR    0x00000000000002d4        0x2 objs/sys/startup_gcc.o
  .text.FaultISR
-                0x00000000000002be        0x2 objs/sys/startup_gcc.o
+                0x00000000000002d6        0x2 objs/sys/startup_gcc.o
  .text.IntDefaultHandler
-                0x00000000000002c0        0x2 objs/sys/startup_gcc.o
- *fill*         0x00000000000002c2        0x2 
+                0x00000000000002d8        0x2 objs/sys/startup_gcc.o
+ *fill*         0x00000000000002da        0x2 
  .text.ResetISR
-                0x00000000000002c4       0x50 objs/sys/startup_gcc.o
-                0x00000000000002c4                ResetISR
+                0x00000000000002dc       0x50 objs/sys/startup_gcc.o
+                0x00000000000002dc                ResetISR
  .text.GPIOIntEnable
-                0x0000000000000314        0xc lib/libdriver.a(gpio.o)
-                0x0000000000000314                GPIOIntEnable
+                0x000000000000032c        0xc lib/libdriver.a(gpio.o)
+                0x000000000000032c                GPIOIntEnable
  .text.GPIOPinWrite
-                0x0000000000000320        0x6 lib/libdriver.a(gpio.o)
-                0x0000000000000320                GPIOPinWrite
+                0x0000000000000338        0x6 lib/libdriver.a(gpio.o)
+                0x0000000000000338                GPIOPinWrite
  .text.SysCtlDelay
-                0x0000000000000326        0x8 lib/libdriver.a(sysctl.o)
-                0x0000000000000326                SysCtlDelay
- *fill*         0x000000000000032e        0x2 
+                0x000000000000033e        0x8 lib/libdriver.a(sysctl.o)
+                0x000000000000033e                SysCtlDelay
+ *fill*         0x0000000000000346        0x2 
  .text.SysCtlClockSet
-                0x0000000000000330      0x114 lib/libdriver.a(sysctl.o)
-                0x0000000000000330                SysCtlClockSet
+                0x0000000000000348      0x114 lib/libdriver.a(sysctl.o)
+                0x0000000000000348                SysCtlClockSet
  .text.SysCtlClockGet
-                0x0000000000000444      0x154 lib/libdriver.a(sysctl.o)
-                0x0000000000000444                SysCtlClockGet
+                0x000000000000045c      0x154 lib/libdriver.a(sysctl.o)
+                0x000000000000045c                SysCtlClockGet
  *(.rodata*)
  .rodata.g_pui32Xtals
-                0x0000000000000598       0x6c lib/libdriver.a(sysctl.o)
-                0x0000000000000604                _etext = .
+                0x00000000000005b0       0x6c lib/libdriver.a(sysctl.o)
+                0x000000000000061c                _etext = .
 
-.glue_7         0x0000000000000604        0x0
- .glue_7        0x0000000000000604        0x0 linker stubs
+.glue_7         0x000000000000061c        0x0
+ .glue_7        0x000000000000061c        0x0 linker stubs
 
-.glue_7t        0x0000000000000604        0x0
- .glue_7t       0x0000000000000604        0x0 linker stubs
+.glue_7t        0x000000000000061c        0x0
+ .glue_7t       0x000000000000061c        0x0 linker stubs
 
-.vfp11_veneer   0x0000000000000604        0x0
- .vfp11_veneer  0x0000000000000604        0x0 linker stubs
+.vfp11_veneer   0x000000000000061c        0x0
+ .vfp11_veneer  0x000000000000061c        0x0 linker stubs
 
-.v4_bx          0x0000000000000604        0x0
- .v4_bx         0x0000000000000604        0x0 linker stubs
+.v4_bx          0x000000000000061c        0x0
+ .v4_bx         0x000000000000061c        0x0 linker stubs
 
-.iplt           0x0000000000000604        0x0
- .iplt          0x0000000000000604        0x0 objs/src/cof.o
+.iplt           0x000000000000061c        0x0
+ .iplt          0x000000000000061c        0x0 objs/src/cof.o
 
-.rel.dyn        0x0000000000000604        0x0
- .rel.iplt      0x0000000000000604        0x0 objs/src/cof.o
+.rel.dyn        0x000000000000061c        0x0
+ .rel.iplt      0x000000000000061c        0x0 objs/src/cof.o
 
-.data           0x0000000020000000        0x1 load address 0x0000000000000604
+.data           0x0000000020000000        0x1 load address 0x000000000000061c
                 0x0000000020000000                _data = .
  *(vtable)
  *(.data*)
@@ -492,10 +492,10 @@ LOAD objs/sys/startup_gcc.o
                 0x0000000020000000                machine_on
                 0x0000000020000001                _edata = .
 
-.igot.plt       0x0000000020000004        0x0 load address 0x0000000000000608
+.igot.plt       0x0000000020000004        0x0 load address 0x0000000000000620
  .igot.plt      0x0000000020000004        0x0 objs/src/cof.o
 
-.bss            0x0000000020000004      0x104 load address 0x0000000000000608
+.bss            0x0000000020000004      0x104 load address 0x0000000000000620
                 0x0000000020000004                _bss = .
  *(.bss*)
  .bss.current_weight
@@ -508,9 +508,9 @@ LOAD lib/libdriver.a
 OUTPUT(objs/coffeebinary.axf elf32-littlearm)
 LOAD linker stubs
 
-.debug_info     0x0000000000000000      0x899
- .debug_info    0x0000000000000000      0x6fd objs/src/cof.o
- .debug_info    0x00000000000006fd      0x19c objs/sys/startup_gcc.o
+.debug_info     0x0000000000000000      0x89c
+ .debug_info    0x0000000000000000      0x700 objs/src/cof.o
+ .debug_info    0x0000000000000700      0x19c objs/sys/startup_gcc.o
 
 .debug_abbrev   0x0000000000000000      0x1fc
  .debug_abbrev  0x0000000000000000       0xfd objs/src/cof.o
@@ -526,9 +526,9 @@ LOAD linker stubs
  .debug_ranges  0x0000000000000000       0x40 objs/src/cof.o
  .debug_ranges  0x0000000000000040       0x28 objs/sys/startup_gcc.o
 
-.debug_line     0x0000000000000000      0x359
- .debug_line    0x0000000000000000      0x234 objs/src/cof.o
- .debug_line    0x0000000000000234      0x125 objs/sys/startup_gcc.o
+.debug_line     0x0000000000000000      0x366
+ .debug_line    0x0000000000000000      0x241 objs/src/cof.o
+ .debug_line    0x0000000000000241      0x125 objs/sys/startup_gcc.o
 
 .debug_str      0x0000000000000000      0x3de
  .debug_str     0x0000000000000000      0x35e objs/src/cof.o
