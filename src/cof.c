@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <inc/hw_ints.h>
 #include <inc/hw_gpio.h>
@@ -8,134 +9,118 @@
 #include <driverlib/sysctl.h>
 #include <driverlib/interrupt.h>
 
-#define ADC_MAX 0xFFFFFF
+#define data_pin  GPIO_PIN_0
+#define clock_pin GPIO_PIN_1
 
-//TODO: CONVERSATION TO END WHEN EXACTLY 25 PULSES HAVE BEEN SENT
-//TODO: FIGURE OUT TARE MATH
+//TODO: WHY AREN'T WE GETTING TIMER INTERRUPTS?
+
 /*
 1) At startup we run one conversation to tare and then we constantly
 2) We will constantly read the data off of the chip
 3) We will stop the machine when we read 15 grams
+
+  NOTE:
+  T1 <- 10 samples per second
+  T2 <- 80 samples per second
+
+  PB0 dout
+  PB1 clock
+  PF1 machine_on
 */
 
-/*
-  NOTE:
-  1) two timers first timer starts when dout goes low
-  2) second timer is 50% duty cycle pwm, reads dout on falling edge
+volatile uint32_t current_value  = 0;
+volatile uint32_t offset_value   = 0; // tare
 
-  NOTE:
-  T1 <- .1 microsecond timer
-  T2 <-  1 microsecond timer
- */
+volatile bool     machine_on     = true;
+volatile bool     chip_ready     = false;
+volatile bool     data_ready     = false;
+volatile bool     data_rate_fast = false;
 
-uint32_t current_value  = 0;
-uint32_t current_weight = 0;
-uint32_t initial_weight = 0;
-uint32_t counter        = 0;
-uint32_t divisions      = 256;
-uint32_t set            = 50;
-uint32_t num_pulses     = 0;
-bool     machine_on     = true;
-bool     first_conv     = true;
+uint32_t read(void)
+{
+  // start conversation
+  GPIOPinWrite(GPIO_PORTB_BASE, clock_pin, clock_pin);
+  SysCtlDelay(80); // <= 1 microsecond
+  GPIOPinWrite(GPIO_PORTB_BASE, clock_pin, 0x0);
 
-// PB0 dout
-// PB1 clock
-// PB2 machine_on
+  // wait for dout to go low
+  while(GPIOPinRead(GPIO_PORTB_BASE, data_pin) == 0x1)
+    {
+    }
 
-//NOTE: .1 microsecond timer
+  int i;
+  int temp = 0;
+
+  for(i = 0; i < 24; i++)
+    {
+      GPIOPinWrite(GPIO_PORTB_BASE, clock_pin, clock_pin);
+      SysCtlDelay(0x1B); // 27*3=81 <= 1 microsecond
+      temp = (temp << 1);
+      if(GPIOPinRead(GPIO_PORTB_BASE, data_pin))
+        {
+          temp++;
+        }
+      GPIOPinWrite(GPIO_PORTB_BASE, clock_pin, 0x0);
+    }
+
+  return temp;
+}
+
+//NOTE: slow timer 10 sps
 void t1_isr(void)
 {
-  TimerIntDisable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
   TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
-  TimerIntEnable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
+  current_value = read() - offset_value;
 
-  TimerEnable(TIMER2_BASE, TIMER_BOTH);
 }
 
-//NOTE: PWM timer 50 % duty cycle
-//NOTE: reads dout on falling edge
-//NOTE: PB1 is sck
+//NOTE: fast timer 80 sps
 void t2_isr(void)
 {
-  // toggle the clk
-  GPIOPinWrite(GPIO_PORTB_BASE,
-               GPIO_PIN_1,
-               ~GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1));
-  // are we on a falling edge?
-  if(GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1) == 0)
-    {
-      current_value = current_value << 1;
-      current_value += GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0);
-      num_pulses++;
-    }
-  if(num_pulses == 25)
-    {
-      num_pulses = 0;
-      TimerIntDisable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
-      current_weight = current_value - initial_weight; //TODO: BULLET PROOF THIS
-      //TODO: REENABLE PORTB INTERRUPTS (THIS IS THE END OF A CONVERSATION)
-      if(first_conv)
-        {
-          initial_weight = current_weight;
-        }
-    }
+  TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
+
+  current_value = read() - offset_value;
 }
 
-//NOTE::TRIGGERED WHEN DOUT GOES LOW
-void portb_isr(void)
-{
-  GPIOIntDisable(GPIO_PORTB_BASE, GPIO_INT_PIN_0);
-
-  GPIOIntClear(GPIO_PORTB_BASE, GPIO_INT_PIN_0);
-
-  TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-
-  TimerEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//NOTE: .1 microseconds
-//NOTE: T1 timer, waits from the time that DOUT goes low till first clk
-//NOTE: 8 cycles gives us .1 microseconds
-//NOTE: so we will use 16 cycles and use .2 microseconds
+//NOTE: slow timer (10 sps)
 void t1_init(void)
 {
   SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_TIMER1)){}
 
-  TimerClockSourceSet(TIMER1_BASE, TIMER_CLOCK_SYSTEM);
+  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_TIMER1))
+  {
+  }
 
   TimerDisable(TIMER1_BASE, TIMER_BOTH);
 
+  TimerClockSourceSet(TIMER1_BASE, TIMER_CLOCK_SYSTEM);
+
   TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
 
-  //TODO: This is twice the minimum
-  TimerLoadSet(TIMER1_BASE, TIMER_A, 0x10); // 16 cycles .2 microsecond
+  TimerLoadSet(TIMER1_BASE, TIMER_A, (SysCtlClockGet() / 10)); // 10 sps
 
   TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
   TimerIntRegister(TIMER2_BASE, TIMER_A, t1_isr);
 }
 
-//NOTE: 1 microsecond timer
-//NOTE: reads dout on the falling edge
-//NOTE: 50% duty cycle pwm
+// NOTE: Fast Timer (80 sps)
 void t2_init(void)
 {
   SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER2);
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_TIMER2)){}
-
-  TimerClockSourceSet(TIMER2_BASE, TIMER_CLOCK_SYSTEM);
+  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_TIMER2))
+    {
+    }
 
   TimerDisable(TIMER2_BASE, TIMER_BOTH);
 
+  TimerClockSourceSet(TIMER2_BASE, TIMER_CLOCK_SYSTEM);
+
   TimerConfigure(TIMER2_BASE, TIMER_CFG_PERIODIC);
 
-  //TODO: This is exactly the minimum time
-  TimerLoadSet(TIMER2_BASE, TIMER_A, 0x50); // 80 cycles 1 microsecond
+  TimerLoadSet(TIMER2_BASE, TIMER_A, (SysCtlClockGet() / 80)); // 80 sps
 
   TimerIntEnable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
 
@@ -143,48 +128,83 @@ void t2_init(void)
 }
 
 //NOTE::PB0 collects DOUT; PB1 provides PD_SCK
+//NOTE::PF3 provides machine_on / machine_off
 void gpio_init(void)
 {
+
   SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB));
+  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB))
+  {}
+
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+
+  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
+  {
+  }
+
+  // PF3 [MACHINE ON] (green means on)
+  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
 
   // DOUT [input]
   GPIOPinTypeGPIOInput(GPIO_PORTB_BASE, GPIO_PIN_0);
 
-  // PB1 PD_SCK [output], PB2 machine_on [output]
-  GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_1 | GPIO_PIN_2);
+  // PB1 PD_SCK [output]
+  GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_1);
 
   GPIOPadConfigSet(GPIO_PORTB_BASE,
-                   GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2,
+                   GPIO_PIN_0 | GPIO_PIN_1,
                    GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD);
 
-  //NOTE::DOUT TRIGGERS THE INTERRUPT
-  GPIOIntEnable(GPIO_PORTB_BASE, GPIO_INT_PIN_0);
+  GPIOPadConfigSet(GPIO_PORTF_BASE,
+                   GPIO_PIN_3,
+                   GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
 
-  GPIOIntRegister(GPIO_PORTB_BASE, portb_isr);
 }
 
-int main(void)
+void tare(void)
+{
+  offset_value = read();
+}
+
+void main(void)
 {
   // SET SYSTEM CLOCK TO 80MHz
   SysCtlClockSet(SYSCTL_SYSDIV_2_5 |
                  SYSCTL_USE_PLL |
                  SYSCTL_OSC_MAIN |
                  SYSCTL_XTAL_16MHZ);
-  uint32_t clk_rte = SysCtlClockGet(); //TODO: VERIFY THIS IS 80MHz
-  // start the machine
-  GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_2, machine_on);
 
-  GPIOIntEnable(GPIO_PORTF_BASE, GPIO_PIN_0);
+  // INITIALIZE
+  IntMasterEnable();
+  gpio_init();
+  t1_init();
+  t2_init();
+
+  tare();
+
+  // start the machine
+  GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, machine_on << 3);
+
+  // SET TIMER BASED ON DATA RATE
+  if(data_rate_fast)
+    {
+      TimerEnable(TIMER2_BASE, TIMER_BOTH);
+    }
+  else
+    {
+      TimerEnable(TIMER1_BASE, TIMER_BOTH);
+    }
+
+
   while(1)
     {
-      if((current_weight / ADC_MAX * 1000) >= 15) // TODO: BULLET PROOF THIS ADC TO GRAM CALCULATION
-        {
-          //TODO: could we just return an shut off the machine here?
-          machine_on = false;
-          GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_2, machine_on);
-        }
+      //NOTE: need data to gram conversion here
+      //if(current_value / digital_max * 1000 > 15)
+      //  {
+      //    machine_on = false;
+      //  }
+
+      GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, machine_on << 3);
     }
-  return 0;
 }
