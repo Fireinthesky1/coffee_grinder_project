@@ -12,7 +12,10 @@
 #define data_pin  GPIO_PIN_0
 #define clock_pin GPIO_PIN_1
 
-//TODO: WHY AREN'T WE GETTING TIMER INTERRUPTS?
+//TODO: Figure out math to get gram values
+//TODO: account for underflow when subtracting offset value from current value
+//TODO: Figure out how to enable RATE=1 (80 sps)
+//TODO: Implement reset functionality (button input calls tare resets flags etc)
 
 /*
 1) At startup we run one conversation to tare and then we constantly
@@ -54,7 +57,7 @@ uint32_t read(void)
   for(i = 0; i < 24; i++)
     {
       GPIOPinWrite(GPIO_PORTB_BASE, clock_pin, clock_pin);
-      SysCtlDelay(0x1B); // 27*3=81 <= 1 microsecond
+      SysCtlDelay(0x6); // 6*3 = 18 (almost 16) <= 1 microsecond
       temp = (temp << 1);
       if(GPIOPinRead(GPIO_PORTB_BASE, data_pin))
         {
@@ -72,7 +75,7 @@ void t1_isr(void)
 
   TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
-  current_value = read() - offset_value;
+  current_value = read();
 
 }
 
@@ -81,7 +84,7 @@ void t2_isr(void)
 {
   TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
 
-  current_value = read() - offset_value;
+  current_value = read();
 }
 
 //NOTE: slow timer (10 sps)
@@ -93,9 +96,9 @@ void t1_init(void)
   {
   }
 
-  TimerDisable(TIMER1_BASE, TIMER_BOTH);
+  TimerClockSourceSet(TIMER1_BASE, TIMER_CLOCK_PIOSC);
 
-  TimerClockSourceSet(TIMER1_BASE, TIMER_CLOCK_SYSTEM);
+  TimerDisable(TIMER1_BASE, TIMER_BOTH);
 
   TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
 
@@ -103,7 +106,7 @@ void t1_init(void)
 
   TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 
-  TimerIntRegister(TIMER2_BASE, TIMER_A, t1_isr);
+  TimerIntRegister(TIMER1_BASE, TIMER_A, t1_isr);
 }
 
 // NOTE: Fast Timer (80 sps)
@@ -114,9 +117,9 @@ void t2_init(void)
     {
     }
 
-  TimerDisable(TIMER2_BASE, TIMER_BOTH);
+  TimerClockSourceSet(TIMER2_BASE, TIMER_CLOCK_PIOSC);
 
-  TimerClockSourceSet(TIMER2_BASE, TIMER_CLOCK_SYSTEM);
+  TimerDisable(TIMER2_BASE, TIMER_BOTH);
 
   TimerConfigure(TIMER2_BASE, TIMER_CFG_PERIODIC);
 
@@ -169,11 +172,8 @@ void tare(void)
 
 void main(void)
 {
-  // SET SYSTEM CLOCK TO 80MHz
-  SysCtlClockSet(SYSCTL_SYSDIV_2_5 |
-                 SYSCTL_USE_PLL |
-                 SYSCTL_OSC_MAIN |
-                 SYSCTL_XTAL_16MHZ);
+  // SET SYSTEM CLOCK TO 16 MHz
+  SysCtlClockSet(SYSCTL_USE_OSC | SYSCTL_OSC_INT);
 
   // INITIALIZE
   IntMasterEnable();
