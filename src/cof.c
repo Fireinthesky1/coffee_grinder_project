@@ -182,7 +182,11 @@ void main(void)
   t1_init();
   t2_init();
 
-  tare();
+  int i;
+  for(i = 0; i < 50; i++)
+  {
+      tare();
+  }
 
   // THIS IS FOR TESTING
   int final_weight = 0;
@@ -204,19 +208,18 @@ void main(void)
   while(1)
     {
       //NOTE: (val - 254777) / 2225
-      //TODO:: WHY DO I HAVE TO MULTIPLY BY 2?????!!!!
-      int weight = 1.5 * ((int)current_value - (int)offset_value) / 2225;
+      int weight = 2 * ((int)current_value - (int)offset_value) / 2225;
       if(weight <= 0) {continue;}
-      if(weight > target)
+      if(weight >= target)
         {
           machine_on = false;
           final_weight = weight;
           break;
         }
 
-      GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x00);
-    }
 
+    }
+  GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x00);
   while(1)
   {
   }
