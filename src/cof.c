@@ -11,11 +11,10 @@
 
 #define data_pin  GPIO_PIN_0
 #define clock_pin GPIO_PIN_1
+#define target    15
 
-//TODO: Figure out math to get gram values
 //TODO: account for underflow when subtracting offset value from current value
 //TODO: Figure out how to enable RATE=1 (80 sps)
-//TODO: Implement reset functionality (button input calls tare resets flags etc)
 
 /*
 1) At startup we run one conversation to tare and then we constantly
@@ -35,8 +34,6 @@ volatile uint32_t current_value  = 0;
 volatile uint32_t offset_value   = 0; // tare
 
 volatile bool     machine_on     = true;
-volatile bool     chip_ready     = false;
-volatile bool     data_ready     = false;
 volatile bool     data_rate_fast = false;
 
 uint32_t read(void)
@@ -77,6 +74,8 @@ void t1_isr(void)
 
   current_value = read();
 
+  int a = 1; //TEST CODE DELETE
+  a += 1;  //TEST CODE DELETE
 }
 
 //NOTE: fast timer 80 sps
@@ -85,6 +84,8 @@ void t2_isr(void)
   TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
 
   current_value = read();
+  int a = 1; //TEST CODE DELETE
+  a += 1; //TEST CODE DELETE
 }
 
 //NOTE: slow timer (10 sps)
@@ -183,6 +184,9 @@ void main(void)
 
   tare();
 
+  // THIS IS FOR TESTING
+  int final_weight = 0;
+
   // start the machine
   GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, machine_on << 3);
 
@@ -199,12 +203,21 @@ void main(void)
 
   while(1)
     {
-      //NOTE: need data to gram conversion here
-      //if(current_value / digital_max * 1000 > 15)
-      //  {
-      //    machine_on = false;
-      //  }
+      //NOTE: (val - 254777) / 2225
+      //TODO:: WHY DO I HAVE TO MULTIPLY BY 2?????!!!!
+      int weight = 1.5 * ((int)current_value - (int)offset_value) / 2225;
+      if(weight <= 0) {continue;}
+      if(weight > target)
+        {
+          machine_on = false;
+          final_weight = weight;
+          break;
+        }
 
-      GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, machine_on << 3);
+      GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x00);
     }
+
+  while(1)
+  {
+  }
 }
