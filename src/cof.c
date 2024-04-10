@@ -78,8 +78,6 @@ void t2_isr(void)
   TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
 
   current_value = read();
-  int a = 1; //TEST CODE DELETE
-  a += 1; //TEST CODE DELETE
 }
 
 //NOTE: slow timer (10 sps)
