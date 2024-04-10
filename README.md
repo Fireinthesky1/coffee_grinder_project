@@ -3,7 +3,7 @@ Using the TM4C123GH6PM microcontroller with a 1 kg load cell send a signal to tu
 
 ## Details
         1) On startup a machine_on signal is set high on GPIO PF3 (GREEN LED)
-        2) 10 times a second we initiate a conversation with the chip and read
+        2) 10 times a second we initiate a conversation with the HX711 chip and read
            out data.
         3) In the main loop we constantly check (using an adc to gram eqation)
            if the load cell has sensed 15 grams of coffee.
