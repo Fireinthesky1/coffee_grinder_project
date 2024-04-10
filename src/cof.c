@@ -13,9 +13,6 @@
 #define clock_pin GPIO_PIN_1
 #define target    15
 
-//TODO: account for underflow when subtracting offset value from current value
-//TODO: Figure out how to enable RATE=1 (80 sps)
-
 /*
 1) At startup we run one conversation to tare and then we constantly
 2) We will constantly read the data off of the chip
