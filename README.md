@@ -9,11 +9,3 @@ Using the TM4C123GH6PM microcontroller with a 1 kg load cell send a signal to tu
            if the load cell has sensed 15 grams of coffee.
         4) If so we record the final weight (for testing pursposes), turn off the
            LED and enter an empty infinite loop
-
-## TODO
-        1) Fine Tune the adc to gram math.
-        2) Figure out how to set fast data collection rate.
-## NOTE
-        1) We're very close but we are getting readings that are off by +- 2 grams
-        2) We need to collect more calibration data to furthur fine tune the 
-           adc-gram equation
